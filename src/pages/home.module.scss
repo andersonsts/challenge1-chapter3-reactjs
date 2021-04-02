@@ -1,1 +1,41 @@
-// TODO
+.main {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.postItemFooter {
+  display: flex;
+  align-items: center;
+  margin-top: 25px;
+
+  div {
+    display: flex;
+    align-items: center;
+    color: #BBBBBB;
+
+    span {
+      margin-left: 8px;
+      font-size: 14px;
+      margin-top: 1px;
+    }
+
+    svg {
+      font-size: 25px;
+    }
+
+    & + div {
+      margin-left: 16px;
+    }
+  }
+}
+
+.loadMorePosts {
+  font-size: 18px;
+  display: block;
+  margin-top: 66px;
+  color: var(--pink);
+  font-weight: 600;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+}

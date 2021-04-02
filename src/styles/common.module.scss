@@ -1,1 +1,30 @@
-// TODO
+.postList {
+  width: 100%;
+
+  li {
+    display: flex;
+    flex-direction: column;
+
+    & + li {
+      margin-top: 50px;
+    }
+
+    strong {
+      color: var(--white);
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: var(--gray);
+      font-size: 18px;
+      text-align: justify;
+      margin-top: 8px;
+    }
+
+    span {
+      color: var(--gray);
+      margin-top: 12px;
+    }
+  }
+}
