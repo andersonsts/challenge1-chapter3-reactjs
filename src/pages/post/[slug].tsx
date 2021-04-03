@@ -108,10 +108,7 @@ export const getStaticProps: GetStaticProps = async context => {
   const response = await prismic.getByUID('post', String(slug), {});
 
   const post = {
-    first_publication_date: format(
-      new Date(response.first_publication_date),
-      'd LLL uuuu'
-    ),
+    first_publication_date: response.first_publication_date,
     data: {
       title: response.data.title,
       subtitle: response.data.subtitle,

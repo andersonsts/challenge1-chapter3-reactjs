@@ -137,10 +137,11 @@ export const getStaticProps: GetStaticProps = async () => {
 
   const results = response.results.map(result => ({
     uid: result.uid,
-    first_publication_date: format(
-      new Date(result.first_publication_date),
-      'd LLL uuuu'
-    ),
+    // first_publication_date: format(
+    //   new Date(result.first_publication_date),
+    //   'd LLL uuuu'
+    // ),
+    first_publication_date: result.first_publication_date,
     data: {
       title: result.data.title,
       subtitle: result.data.subtitle,
