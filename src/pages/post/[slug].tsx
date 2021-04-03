@@ -4,7 +4,9 @@ import {
   AiOutlineClockCircle,
   AiOutlineUser,
 } from 'react-icons/ai';
+import Prismic from '@prismicio/client';
 import { format } from 'date-fns';
+import { useRouter } from 'next/router';
 import Header from '../../components/Header';
 
 import { getPrismicClient } from '../../services/prismic';
@@ -34,6 +36,12 @@ interface PostProps {
 }
 
 export default function Post({ post }: PostProps): JSX.Element {
+  const router = useRouter();
+
+  if (router.isFallback) {
+    return <div>Carregando...</div>;
+  }
+
   return (
     <>
       <Header />
@@ -75,12 +83,21 @@ export default function Post({ post }: PostProps): JSX.Element {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  // const prismic = getPrismicClient();
-  // const posts = await prismic.query(TODO);
+  const prismic = getPrismicClient();
+  const response = await prismic.query(
+    [Prismic.predicates.at('document.type', 'post')],
+    {
+      fetch: ['post.uid'],
+    }
+  );
+
+  const onlySlugs = response.results.map(item => ({
+    params: { slug: item.uid },
+  }));
 
   return {
-    paths: [],
-    fallback: 'blocking',
+    paths: onlySlugs,
+    fallback: true,
   };
 };
 
@@ -94,7 +111,6 @@ export const getStaticProps: GetStaticProps = async context => {
     first_publication_date: format(
       new Date(response.first_publication_date),
       'd LLL uuuu'
-      // { locale: ptBR }
     ),
     data: {
       title: response.data.title,

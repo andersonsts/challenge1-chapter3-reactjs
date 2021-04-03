@@ -140,7 +140,6 @@ export const getStaticProps: GetStaticProps = async () => {
     first_publication_date: format(
       new Date(result.first_publication_date),
       'd LLL uuuu'
-      // { locale: ptBR }
     ),
     data: {
       title: result.data.title,
