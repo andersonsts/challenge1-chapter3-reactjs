@@ -5,10 +5,10 @@ import {
   AiOutlineUser,
 } from 'react-icons/ai';
 import Prismic from '@prismicio/client';
-import { format } from 'date-fns';
 import { useRouter } from 'next/router';
-import Header from '../../components/Header';
 
+// import { format } from 'date-fns';
+import Header from '../../components/Header';
 import { getPrismicClient } from '../../services/prismic';
 
 import commonStyles from '../../styles/common.module.scss';
@@ -54,7 +54,9 @@ export default function Post({ post }: PostProps): JSX.Element {
           <div className={styles.postItemFooter}>
             <div>
               <AiOutlineCalendar />
-              <span>{post.first_publication_date}</span>
+              <span>25 mar 2021</span>
+              {/* <span>2021-03-25T19:25:28+0000</span> */}
+              {/* <span>{post.first_publication_date}</span> */}
             </div>
             <div>
               <AiOutlineUser />
@@ -108,6 +110,7 @@ export const getStaticProps: GetStaticProps = async context => {
   const response = await prismic.getByUID('post', String(slug), {});
 
   const post = {
+    uid: response.uid,
     first_publication_date: response.first_publication_date,
     data: {
       title: response.data.title,
@@ -119,7 +122,9 @@ export const getStaticProps: GetStaticProps = async context => {
       content: response.data.content.map(contentItem => ({
         heading: contentItem.heading,
         body: contentItem.body.map(bodyItem => ({
+          type: bodyItem.type,
           text: bodyItem.text,
+          spans: bodyItem.spans,
         })),
       })),
     },

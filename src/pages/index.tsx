@@ -1,9 +1,10 @@
+import { useEffect, useState } from 'react';
 import { GetStaticProps } from 'next';
 import Prismic from '@prismicio/client';
 import { AiOutlineCalendar, AiOutlineUser } from 'react-icons/ai';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { useCallback, useEffect, useState } from 'react';
+import { ptBR } from 'date-fns/locale';
 import { getPrismicClient } from '../services/prismic';
 // import { ptBR } from 'date-fns/locale';
 
@@ -32,47 +33,30 @@ interface HomeProps {
 
 export default function Home({ postsPagination }: HomeProps): JSX.Element {
   const { results, next_page } = postsPagination;
-
   const [posts, setPosts] = useState<Post[]>(results);
-  const [page, setPage] = useState({ current: 1, total: 1 });
-
-  const setTotalPage = useCallback(async () => {
-    if (!next_page) return;
-    const response = await fetch(next_page);
-    const data = await response.json();
-    setPage(prev => ({ ...prev, total: data.page }));
-  }, [next_page]);
+  const [endPage, setEndPage] = useState(() => !next_page);
 
   const handleMorePosts = async (): Promise<void> => {
     const response = await fetch(next_page);
-    const data = await response.json();
+    const responseInJson = await response.json();
+    const { total_pages, page, results: data } = responseInJson;
 
-    if (page.current === data.page) return;
-
-    setPage(prev => ({
-      ...prev,
-      current: prev.current + 1,
-    }));
-
-    const morePosts = data.results.map(result => ({
-      uid: result.uid,
-      first_publication_date: format(
-        new Date(result.first_publication_date),
-        'd LLL uuuu'
-      ),
+    const formattedData = data.map(item => ({
+      first_publication_date: item.first_publication_date,
+      uid: item.uid,
       data: {
-        title: result.data.title,
-        subtitle: result.data.subtitle,
-        author: result.data.author,
+        author: item.data.author,
+        subtitle: item.data.subtitle,
+        title: item.data.title,
       },
     }));
 
-    setPosts(prev => [...prev, ...morePosts]);
-  };
+    setPosts(prev => [...prev, ...formattedData]);
 
-  useEffect(() => {
-    setTotalPage();
-  }, [setTotalPage]);
+    if (total_pages === page) {
+      setEndPage(true);
+    }
+  };
 
   return (
     <>
@@ -80,7 +64,7 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
 
       <main className={styles.main}>
         <ul className={commonStyles.postList}>
-          {posts.map(post => (
+          {posts?.map(post => (
             <li key={post.uid}>
               <Link href={`/post/${post.uid}`}>
                 <a>
@@ -92,7 +76,13 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
               <div className={styles.postItemFooter}>
                 <div>
                   <AiOutlineCalendar />
-                  <span>{post.first_publication_date}</span>
+                  <span>
+                    {format(
+                      new Date(post.first_publication_date),
+                      'dd LLL uuuu',
+                      { locale: ptBR }
+                    )}
+                  </span>
                 </div>
                 <div>
                   <AiOutlineUser />
@@ -102,7 +92,7 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
             </li>
           ))}
 
-          {page.current < page.total && (
+          {!endPage && (
             <button
               type="button"
               className={styles.loadMorePosts}
@@ -137,10 +127,6 @@ export const getStaticProps: GetStaticProps = async () => {
 
   const results = response.results.map(result => ({
     uid: result.uid,
-    // first_publication_date: format(
-    //   new Date(result.first_publication_date),
-    //   'd LLL uuuu'
-    // ),
     first_publication_date: result.first_publication_date,
     data: {
       title: result.data.title,
